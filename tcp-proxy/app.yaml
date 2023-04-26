@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: proxy-db
+  name: proxy-db
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: proxy-db
+  template:
+    metadata:
+      labels:
+        app: proxy-db
+    spec:
+      containers:
+        - image: tecnativa/tcp-proxy:v1.0.1
+          imagePullPolicy: Always
+          env:
+            - name: PRE_RESOLVE
+              value: "1"
+            - name: TIMEOUT_CLIENT
+              value: "3600s"
+            - name: TIMEOUT_SERVER
+              value: "3600s"
+            - name: TIMEOUT_TUNNEL
+              value: "3600s"
+            - name: LISTEN
+              value: ":1030"
+            - name: TALK
+              value: "whoami.domain.com:8080" # Change me 
+          name: tcp-proxy
+          resources:
+            requests:
+              cpu: "0.1"
+              memory: 100m
+            limits:
+              cpu: "0.1"
+              memory: 100m
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - proxy-db
+            topologyKey: "kubernetes.io/hostname"
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      securityContext: {}

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: proxy-db
+  name: proxy-db
+spec:
+  ports:
+  - port: 1030
+    protocol: TCP
+    targetPort: 1030
+  selector:
+    app: proxy-db
+  type: ClusterIP
